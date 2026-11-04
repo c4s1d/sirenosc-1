@@ -330,21 +330,33 @@ public class MainActivity extends Activity {
         runOnUiThread(() -> Toast.makeText(MainActivity.this, m, Toast.LENGTH_LONG).show());
     }
 
-    /** Foreground service keeps the process (and the audio thread) alive while sound is playing in the background. */
-    private void syncService() {
-        if (Config.BG_AUDIO) {
-            Intent i = new Intent(this, PlaybackService.class);
-            if (audioOn && !serviceRunning) {
-                try { startForegroundService(i); serviceRunning = true; } catch (Throwable ignored) { }
-            } else if (!audioOn && serviceRunning) {
-                try { stopService(i); } catch (Throwable ignored) { }
-                serviceRunning = false;
-            }
+    private final android.os.Handler uiHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+    private final Runnable stopLater = () -> {
+        if (!audioOn && serviceRunning) {
+            try { stopService(new Intent(this, PlaybackService.class)); } catch (Throwable ignored) { }
+            serviceRunning = false;
         }
         if (!audioOn && !resumed && web != null) {
-            web.onPause();
-            web.pauseTimers();
+            try { web.onPause(); web.pauseTimers(); } catch (Throwable ignored) { }
         }
+    };
+
+    /** Foreground service keeps the process (and the audio thread) alive while sound is playing in the background.
+     *  Start is immediate; stop is debounced so rapid running/suspended flips can never stop a service that has not
+     *  called startForeground() yet (that race kills the app). */
+    private void syncService() {
+        try {
+            if (audioOn) {
+                uiHandler.removeCallbacks(stopLater);
+                if (Config.BG_AUDIO && !serviceRunning) {
+                    startForegroundService(new Intent(this, PlaybackService.class));
+                    serviceRunning = true;
+                }
+            } else {
+                uiHandler.removeCallbacks(stopLater);
+                uiHandler.postDelayed(stopLater, 5000);
+            }
+        } catch (Throwable ignored) { }
     }
 
     static void quit() {

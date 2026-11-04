@@ -12,25 +12,6 @@ var oc=HTMLAnchorElement.prototype.click;
 HTMLAnchorElement.prototype.click=function(){if(this.hasAttribute('download')&&handle(this))return;return oc.apply(this,arguments);};
 document.addEventListener('click',function(e){var a=e.target&&e.target.closest&&e.target.closest('a[download]');if(a&&handle(a)){e.preventDefault();e.stopPropagation();}},true);
 var AC=window.AudioContext||window.webkitAudioContext;
-if(AC){var n=0;function W(o){o=o||{};if(o.latencyHint===undefined)o.latencyHint='balanced';var c=new AC(o);
-  function upd(){var r=c.state==='running';if(r&&!c.__r){c.__r=1;n++;}else if(!r&&c.__r){c.__r=0;n--;}try{B.audioState(n>0);}catch(e){}}
-  c.addEventListener('statechange',upd);upd();return c;}
-  W.prototype=AC.prototype;window.AudioContext=W;window.webkitAudioContext=W;}
-})();</script>
-<script>/*apk-shim*/(function(){
-var K='sirenosc_ui_settings';
-try{var s=JSON.parse(localStorage.getItem(K)||'{}')||{};if(!s.mobileLayout){s.mobileLayout='on';localStorage.setItem(K,JSON.stringify(s));}}catch(e){}
-window.__APK__=true;
-try{document.documentElement.style.overscrollBehavior='none';}catch(e){}
-var B=window.AndroidApp; if(!B)return;
-function handle(a){var h=a.href||'';if(!/^(blob:|data:)/.test(h))return false;var name=a.getAttribute('download')||'download';
- fetch(h).then(function(r){return r.blob();}).then(function(b){try{B.saveBegin(name,b.type||'');var C=1572864,i=0;
-  (function next(){if(i>=b.size){B.saveEnd();return;}var fr=new FileReader();fr.onload=function(){var d=fr.result;B.saveChunk(d.substring(d.indexOf(',')+1));i+=C;next();};fr.onerror=function(){B.saveAbort();};fr.readAsDataURL(b.slice(i,i+C));})();
- }catch(e){try{B.saveAbort();}catch(_){}}}).catch(function(){try{B.saveAbort();}catch(_){}});return true;}
-var oc=HTMLAnchorElement.prototype.click;
-HTMLAnchorElement.prototype.click=function(){if(this.hasAttribute('download')&&handle(this))return;return oc.apply(this,arguments);};
-document.addEventListener('click',function(e){var a=e.target&&e.target.closest&&e.target.closest('a[download]');if(a&&handle(a)){e.preventDefault();e.stopPropagation();}},true);
-var AC=window.AudioContext||window.webkitAudioContext;
 if(AC){var n=0;function W(o){o=o||{};if(o.latencyHint===undefined)o.latencyHint='interactive';var c=new AC(o);
   function upd(){var r=c.state==='running';if(r&&!c.__r){c.__r=1;n++;}else if(!r&&c.__r){c.__r=0;n--;}try{B.audioState(n>0);}catch(e){}}
   c.addEventListener('statechange',upd);upd();return c;}

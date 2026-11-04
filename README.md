@@ -8,7 +8,7 @@ from inside the APK (no browser, no network needed except optional Google Fonts 
 - High-performance mode: page started with ?fps=60 (removes the 30 fps visual cap and low-power throttling).
 - Hardware-accelerated WebView, uncompressed assets, Safe Browsing off, no zoom/overscroll, activity survives rotation without reloading.
 - Highest refresh rate at native resolution + sustained-performance mode requested.
-- Web Audio latency hint: balanced.
+- Web Audio latency hint: interactive.
 - Audio keeps playing with the screen off / app in background (foreground service + wake lock, only while sound is running; notification has a Quit button).
 - Screen stays on while the app is open.
 - Immersive fullscreen (swipe from an edge to show system bars).

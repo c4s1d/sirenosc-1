@@ -22,18 +22,9 @@ public class PlaybackService extends Service {
     @Override
     public IBinder onBind(Intent intent) { return null; }
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null && ACTION_STOP.equals(intent.getAction())) {
-            MainActivity.quit();
-            stopForeground(STOP_FOREGROUND_REMOVE);
-            stopSelf();
-            return START_NOT_STICKY;
-        }
-
+    private Notification buildNotification() {
         NotificationManager nm = getSystemService(NotificationManager.class);
         nm.createNotificationChannel(new NotificationChannel(CHANNEL, "Audio playback", NotificationManager.IMPORTANCE_LOW));
-
         Intent open = new Intent(this, MainActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         PendingIntent openPi = PendingIntent.getActivity(this, 0, open,
@@ -41,8 +32,7 @@ public class PlaybackService extends Service {
         Intent stop = new Intent(this, PlaybackService.class).setAction(ACTION_STOP);
         PendingIntent stopPi = PendingIntent.getService(this, 1, stop,
                 PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-
-        Notification n = new Notification.Builder(this, CHANNEL)
+        return new Notification.Builder(this, CHANNEL)
                 .setSmallIcon(R.drawable.ic_stat)
                 .setContentTitle(getString(R.string.app_name))
                 .setContentText("Audio running - tap to open")
@@ -52,14 +42,42 @@ public class PlaybackService extends Service {
                 .addAction(new Notification.Action.Builder(
                         Icon.createWithResource(this, R.drawable.ic_stat), "Quit", stopPi).build())
                 .build();
+    }
 
-        startForeground(NOTIF_ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
+    private boolean goForeground() {
+        try {
+            startForeground(NOTIF_ID, buildNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
+            return true;
+        } catch (Throwable t) {
+            return false;
+        }
+    }
 
-        if (wakeLock == null) {
-            PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
-            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "com.aphidaks.sirenosc:audio");
-            wakeLock.setReferenceCounted(false);
-            wakeLock.acquire(12L * 60L * 60L * 1000L);
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        // Must happen immediately after startForegroundService(), before anything else can fail.
+        if (!goForeground()) stopSelf();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        try {
+            if (intent != null && ACTION_STOP.equals(intent.getAction())) {
+                MainActivity.quit();
+                stopForeground(STOP_FOREGROUND_REMOVE);
+                stopSelf();
+                return START_NOT_STICKY;
+            }
+            goForeground();
+            if (wakeLock == null) {
+                PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+                wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "com.aphidaks.sirenosc:audio");
+                wakeLock.setReferenceCounted(false);
+                wakeLock.acquire(12L * 60L * 60L * 1000L);
+            }
+        } catch (Throwable t) {
+            // never let the helper service take the app down
         }
         return START_NOT_STICKY;
     }
