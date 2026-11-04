@@ -1,0 +1,64 @@
+{
+  "default": {
+    "presetname": "FS TBOLT 1003 (DEFAULT)",
+    "presetfile": "default.oscp",
+    "available": true
+  },
+  "presets": [
+    {
+      "presetname": "FS 3T22",
+      "presetfile": "3T22.oscp",
+      "available": true
+    },
+    {
+      "presetname": "FS SD-10",
+      "presetfile": "SD-10.oscp",
+      "available": true
+    },
+    {
+      "presetname": "FS 508-128",
+      "presetfile": "508-128.oscp",
+      "available": false
+    },
+    {
+      "presetname": "ACA Allertor",
+      "presetfile": "ALLERTOR.oscp",
+      "available": true
+    },
+    {
+      "presetname": "ACA P-10",
+      "presetfile": "P-10.oscp",
+      "available": true
+    },
+    {
+      "presetname": "ACA P-50",
+      "presetfile": "P-50.oscp",
+      "available": false
+    },
+    {
+      "presetname": "Sentry 5V",
+      "presetfile": "5V.oscp",
+      "available": false
+    },
+    {
+      "presetname": "Sentry 16V1T-B",
+      "presetfile": "16V1T-B.oscp",
+      "available": false
+    },
+    {
+      "presetname": "HOR Sirex",
+      "presetfile": "SUPER SIREX.oscp",
+      "available": true
+    },
+    {
+      "presetname": "CLM Siren",
+      "presetfile": "CLM SIREN.oscp",
+      "available": false
+    },
+    {
+      "presetname": "LK JDW-450",
+      "presetfile": "JDW-450.oscp",
+      "available": false
+    }
+  ]
+}
